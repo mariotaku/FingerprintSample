@@ -212,11 +212,11 @@ public class MainActivity extends Activity {
         // Use Encrypt mode.
         cipher.init(Cipher.ENCRYPT_MODE, key);
         final FingerprintManager.CryptoObject crypto = new FingerprintManager.CryptoObject(cipher);
-        mFingerprintManager.authenticate(crypto, null, 0, new FingerprintManager.AuthenticationCallback() {
+        mFingerprintManager.authenticate(crypto, null, 0, new SimpleAuthenticationCallback() {
             @Override
             public void onAuthenticationSucceeded(final FingerprintManager.AuthenticationResult result) {
                 final Cipher cipher = result.getCryptoObject().getCipher();
-                Random random = new Random();
+                final Random random = new Random();
                 // Here we generate a random byte array to demonstrate how encryption works.
                 final byte[] data = new byte[16];
                 random.nextBytes(data);
@@ -232,20 +232,6 @@ public class MainActivity extends Activity {
                 }
             }
 
-            @Override
-            public void onAuthenticationError(final int errorCode, final CharSequence errString) {
-                writeError(errString);
-            }
-
-            @Override
-            public void onAuthenticationHelp(final int helpCode, final CharSequence helpString) {
-                writeError(helpString);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                writeError("Couldn't recognize you");
-            }
         }, new Handler());
         return true;
     }
@@ -265,7 +251,7 @@ public class MainActivity extends Activity {
         // Use Decrypt mode
         cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(mIV));
         final FingerprintManager.CryptoObject crypto = new FingerprintManager.CryptoObject(cipher);
-        mFingerprintManager.authenticate(crypto, null, 0, new FingerprintManager.AuthenticationCallback() {
+        mFingerprintManager.authenticate(crypto, null, 0, new SimpleAuthenticationCallback() {
             @Override
             public void onAuthenticationSucceeded(final FingerprintManager.AuthenticationResult result) {
                 final Cipher cipher = result.getCryptoObject().getCipher();
@@ -278,22 +264,27 @@ public class MainActivity extends Activity {
                     writeError(e);
                 }
             }
-
-            @Override
-            public void onAuthenticationError(final int errorCode, final CharSequence errString) {
-                writeError(errString);
-            }
-
-            @Override
-            public void onAuthenticationHelp(final int helpCode, final CharSequence helpString) {
-                writeError(helpString);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                writeError("Couldn't recognize you");
-            }
         }, new Handler());
         return true;
+    }
+
+    private class SimpleAuthenticationCallback extends FingerprintManager.AuthenticationCallback {
+
+
+        @Override
+        public void onAuthenticationError(final int errorCode, final CharSequence errString) {
+            writeError(errString);
+        }
+
+        @Override
+        public void onAuthenticationHelp(final int helpCode, final CharSequence helpString) {
+            writeError(helpString);
+        }
+
+        @Override
+        public void onAuthenticationFailed() {
+            writeError("Couldn't recognize you");
+        }
+
     }
 }
